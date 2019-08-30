@@ -7,10 +7,6 @@ public class Drag : MonoBehaviour {
     float grabDistance;
     Ray mouseRay;
 
-    // Use this for initialization
-    void Start() {
-    }
-
     // Update is called once per frame
     void Update() {
         Camera cam = GetComponent<Camera>();
@@ -31,7 +27,13 @@ public class Drag : MonoBehaviour {
             Vector3 diff = mp - gp;
             Rigidbody body = target.GetComponent<Rigidbody>();
             body.AddForceAtPosition( diff * 10, gp );
+            body.AddForce( body.velocity * -10 );
         }
+
+        if ( Input.GetKey( KeyCode.E ) )
+            grabDistance += 0.1f;
+        if ( Input.GetKey( KeyCode.Q ) )
+            grabDistance -= 0.1f;
     }
 
     Vector3 grabPoint {
