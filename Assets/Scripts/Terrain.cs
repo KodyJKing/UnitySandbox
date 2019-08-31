@@ -1,47 +1,43 @@
 ﻿using UnityEngine;
 using System.Collections;
-
 public class Terrain : MonoBehaviour {
 
     [Range( 10, 200 )]
-    public int width = 100;
+    public int resolution = 100;
+
     [Range( 1, 100 )]
-    public float hScale = 10;
-    [Range( 1, 100 )]
-    public float vScale = 1;
-    [Range( 1, 100 )]
-    public float roughness = 1;
-    public Vector2 noiseOffset = new Vector2( 1000, 2000 );
+    public float width = 10;
+
+    public OctaveGenerator generator;
 
     private void OnValidate() {
-        generateMesh( width );
+        generateMesh();
     }
 
     int coordToIndex( int x, int z ) {
-        return x + z * width;
+        return x + z * resolution;
     }
 
-    void generateMesh( int width ) {
+    void generateMesh() {
         var center = transform.position;
 
-        var vertexCount = width * width;
+        var vertexCount = resolution * resolution;
 
         var vertices = new Vector3[ vertexCount ];
-        var triangles = new int[ ( width - 1 ) * ( width - 1 ) * 6 ];
-        var uvs = new Vector2[ vertexCount ];
+        var triangles = new int[ ( resolution - 1 ) * ( resolution - 1 ) * 6 ];
 
         int i = 0;
 
-        for ( int x = 0; x < width; x++ ) {
-            for ( int z = 0; z < width; z++ ) {
-                Vector3 pos = ( new Vector3( x, 0, z ) / width ) - new Vector3( 0.5f, 0, 0.5f );
-                Vector2 noisePos = noiseOffset + ( new Vector2( pos.x, pos.z ) * roughness );
-                float height = Mathf.PerlinNoise( noisePos.x, noisePos.y ) * vScale;
+        for ( int x = 0; x < resolution; x++ ) {
+            for ( int z = 0; z < resolution; z++ ) {
+                Vector3 pos = ( new Vector3( x, 0, z ) / resolution ) - new Vector3( 0.5f, 0, 0.5f );
 
-                Vector3 offset = pos * hScale;
+                float height = generator.generate( new Vector2( pos.x, pos.z ) );
+
+                Vector3 offset = pos * width;
                 vertices[ coordToIndex( x, z ) ] = center + offset + Vector3.up * height;
 
-                if ( x + 1 == width || z + 1 == width )
+                if ( x + 1 == resolution || z + 1 == resolution )
                     continue;
 
                 triangles[ i++ ] = coordToIndex( x + 1, z + 1 );
@@ -57,7 +53,7 @@ public class Terrain : MonoBehaviour {
         var mesh = new Mesh();
         mesh.vertices = vertices;
         mesh.triangles = triangles;
-        mesh.uv = uvs;
+        mesh.uv = new Vector2[ vertexCount ];
         mesh.RecalculateNormals();
 
         var meshFilter = GetComponent<MeshFilter>();
