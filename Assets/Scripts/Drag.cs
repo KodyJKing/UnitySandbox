@@ -14,7 +14,7 @@ public class Drag : MonoBehaviour {
 
         if ( Input.GetMouseButtonDown( 0 ) ) {
             RaycastHit hit;
-            if ( Physics.Raycast( mouseRay, out hit ) ) {
+            if ( Physics.Raycast( mouseRay, out hit ) && hit.rigidbody != null ) {
                 target = hit.rigidbody.gameObject;
                 localGrabPoint = hit.transform.worldToLocalMatrix.MultiplyPoint( hit.point );
                 grabDistance = hit.distance;
@@ -26,8 +26,8 @@ public class Drag : MonoBehaviour {
             Vector3 mp = mousePoint;
             Vector3 diff = mp - gp;
             Rigidbody body = target.GetComponent<Rigidbody>();
-            body.AddForceAtPosition( diff * 10, gp );
-            body.AddForce( body.velocity * -10 );
+            body.AddForceAtPosition( diff * 100, gp );
+            body.AddForce( body.velocity * -1 );
         }
 
         if ( Input.GetKey( KeyCode.E ) )
