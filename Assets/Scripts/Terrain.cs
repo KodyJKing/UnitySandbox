@@ -8,7 +8,10 @@ public class Terrain : MonoBehaviour {
     [Range( 1, 100 )]
     public float width = 10;
 
-    public OctaveGenerator generator;
+    [Range( 0, 2 )]
+    public float seaLevel = 0.5f;
+
+    public OctaveGenerator noise;
 
     private void OnValidate() {
         generateMesh();
@@ -32,7 +35,8 @@ public class Terrain : MonoBehaviour {
             for ( int z = 0; z < resolution; z++ ) {
                 Vector3 pos = ( new Vector3( x, 0, z ) / resolution ) - new Vector3( 0.5f, 0, 0.5f );
 
-                float height = generator.generate( new Vector2( pos.x, pos.z ) );
+                float height = noise.generate( new Vector2( pos.x, pos.z ) );
+                height = Mathf.Max( 0, height - seaLevel ) + seaLevel;
 
                 Vector3 offset = pos * width;
                 vertices[ coordToIndex( x, z ) ] = center + offset + Vector3.up * height;
